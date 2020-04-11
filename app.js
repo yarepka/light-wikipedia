@@ -20,11 +20,23 @@ const articleSchema = mongoose.Schema({
 const Article = mongoose.model("Article", articleSchema);
 
 app.get("/articles", (req, res) => {
-    Article.find({}, (err, articles) => {
-        if(err) console.log(err)
-        else console.log(articles);
+    Article.find((err, articles) => {
+        if(!err) res.send(articles);
+        else res.send(err);
     });
 })
+
+app.post("/articles", (req, res) => {
+    const newArticle = new Article({
+        title: req.body.title,
+        content: req.body.content
+    });
+    
+    newArticle.save((err) => {
+        if(!err) res.send("Successfully added a new article");
+        else res.send(err);
+    });
+});
 
 app.listen(3000, () => {
     console.log("Server started on port 3000");
