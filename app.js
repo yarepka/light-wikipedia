@@ -19,14 +19,16 @@ const articleSchema = mongoose.Schema({
 
 const Article = mongoose.model("Article", articleSchema);
 
-app.get("/articles", (req, res) => {
+// Requests targeting all articles
+
+app.route("/articles")
+.get((req, res) => {
     Article.find((err, articles) => {
         if(!err) res.send(articles);
         else res.send(err);
     });
 })
-
-app.post("/articles", (req, res) => {
+.post((req, res) => {
     const newArticle = new Article({
         title: req.body.title,
         content: req.body.content
@@ -36,14 +38,33 @@ app.post("/articles", (req, res) => {
         if(!err) res.send("Successfully added a new article");
         else res.send(err);
     });
-});
-
-app.delete("/articles", (req, res) => {
+})
+.delete((req, res) => {
     Article.deleteMany((err) => {
         if(!err) res.send("Successfully deleted all articles");
         else res.send(err);
     })
 });
+
+// Requests targeting specifid article
+
+app.route("/articles/:articleTitle")
+.get((req,res) => {
+    Article.findOne({title: req.params.articleTitle}, (err, foundArticle) => {
+        if(!err && foundArticle) res.send(foundArticle);
+        else res.send(err);
+    });
+})
+.put((req,res)=>{
+    Article.updateOne(
+        {title: req.params.articleTitle},
+        {title: req.body.title, content: req.body.content},
+        {overwrite: true},
+        (err) => {
+            if(!err) res.send("Successfully updated article.");
+        }
+    )
+})
 
 app.listen(3000, () => {
     console.log("Server started on port 3000");
